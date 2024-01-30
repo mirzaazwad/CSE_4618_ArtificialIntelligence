@@ -147,7 +147,7 @@ def uniformCostSearch(problem):
     fringe = util.PriorityQueue()
     rootNode = (problem.getStartState(),[])
     fringe.push(rootNode,0)
-    closed = []
+    closed = set()
 
     while True:
         if fringe.isEmpty():
@@ -165,9 +165,7 @@ def uniformCostSearch(problem):
                 cumulativeCost=problem.getCostOfActions(currPlan)+nextCost
                 nextNode = (nextState, nextPlan)
                 fringe.push(nextNode,cumulativeCost)
-
-            closed.append(currState)
-    print("Comes Here")
+            closed.add(currState)
 
 
 def nullHeuristic(state, problem=None):
