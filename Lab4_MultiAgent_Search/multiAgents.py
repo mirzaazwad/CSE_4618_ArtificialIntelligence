@@ -343,7 +343,15 @@ def betterEvaluationFunction(currentGameState):
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
     evaluation function (question 5).
 
-    DESCRIPTION: <write something here so we know what you did>
+    DESCRIPTION: We evaluate the state using ideas of where the food packets are, the capsules,
+    the scared time and the distance to the ghosts, using our current game configuration. This helps
+    determine how good our current configuration is, similar to task 1 we have a similar logic for
+    the distanceToGhost and distanceToFood being deducted from the score but the difference is that
+    we also consider the capsules position as it helps scare the ghosts and make them edible by pacman.
+    If the scared time is positive, means the ghost is scared so we can move towards eating them, also
+    it is more favorable to have a higher scared time, additionally we don't want to eat capsules at this time.
+    This is why we deduct from score when scaredTime is positive, while instead we add, as the higher distance to ghost is favorable
+    and having a lesser number of capsules is favorable when scaredTime is 0.
     """
     "*** YOUR CODE HERE ***"
     if currentGameState.isWin():
@@ -355,7 +363,6 @@ def betterEvaluationFunction(currentGameState):
     foodPos = currentGameState.getFood()
     currentGhostStates = currentGameState.getGhostStates()
     currentScaredTimes = [ghostState.scaredTimer for ghostState in currentGhostStates]
-    currentCapsules=currentGameState.getCapsules()
     distanceToGhost=[]
     distanceToFood=[]
     for i in currentGhostStates:
@@ -365,11 +372,11 @@ def betterEvaluationFunction(currentGameState):
     totalScaredTime=sum(currentScaredTimes)
     if len(distanceToGhost)>0:
         if totalScaredTime>0:
-            score-=(sum(distanceToGhost)+len(currentCapsules)-totalScaredTime)
+            score-=(sum(distanceToGhost)-totalScaredTime)
         else:
-            score+=(sum(distanceToGhost)+len(currentCapsules))
+            score+=(sum(distanceToGhost))
     if len(distanceToFood)>0:
-        score+=(1/sum(distanceToFood)+len(foodPos.asList(False)))
+        score+=(1/sum(distanceToFood))
     return score
 
 # Abbreviation
