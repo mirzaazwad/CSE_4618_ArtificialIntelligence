@@ -73,7 +73,11 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
         "*** YOUR CODE HERE ***"
+        if successorGameState.isWin():
+            return 1e9
         score=successorGameState.getScore()
+        if successorGameState.isLose():
+            return score
         distanceToGhost=[]
         distanceToFood=[]
         for ghost in newGhostStates:
@@ -82,12 +86,12 @@ class ReflexAgent(Agent):
             distanceToFood.append(manhattanDistance(foodPosition,newPos))
         if len(distanceToFood)>0:
             score-=(min(distanceToFood))
-        scaredTime=min(newScaredTimes)
+        totalScaredTime=sum(newScaredTimes)
         if len(distanceToGhost)>0:
-            if scaredTime>0:
-                score-=(min(distanceToGhost))
+            if totalScaredTime>0:
+                score-=(sum(distanceToGhost)-totalScaredTime)
             else:
-                score+=(min(distanceToGhost))
+                score+=(sum(distanceToGhost))
         if action==Directions.STOP:
             score-=10
         return score
@@ -363,6 +367,7 @@ def betterEvaluationFunction(currentGameState):
     foodPos = currentGameState.getFood()
     currentGhostStates = currentGameState.getGhostStates()
     currentScaredTimes = [ghostState.scaredTimer for ghostState in currentGhostStates]
+    powerPellets=currentGameState.getCapsules()
     distanceToGhost=[]
     distanceToFood=[]
     for i in currentGhostStates:
@@ -372,11 +377,11 @@ def betterEvaluationFunction(currentGameState):
     totalScaredTime=sum(currentScaredTimes)
     if len(distanceToGhost)>0:
         if totalScaredTime>0:
-            score-=(sum(distanceToGhost)-totalScaredTime)
+            score-=(sum(distanceToGhost)+len(powerPellets)-totalScaredTime)
         else:
-            score+=(sum(distanceToGhost))
+            score+=(sum(distanceToGhost)-len(powerPellets))
     if len(distanceToFood)>0:
-        score+=(1/sum(distanceToFood))
+        score+=(1/sum(distanceToFood)+len(foodPos.asList(False)))
     return score
 
 # Abbreviation
