@@ -181,15 +181,12 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
         "*** YOUR CODE HERE ***"
         states = self.mdp.getStates()
         predecessors = {}
-        
-        non_terminal_states=[]
 
         priorityQueue = util.PriorityQueue()
 
         for current_state in states:
             if self.mdp.isTerminal(current_state):
                 continue
-            non_terminal_states.append(current_state)
             for action in self.mdp.getPossibleActions(current_state):
                 for next_state, _ in self.mdp.getTransitionStatesAndProbs(current_state, action):
                     if next_state in predecessors:
