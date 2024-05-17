@@ -180,31 +180,36 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
         states = self.mdp.getStates()
-        predecessors = []
-        priorityQueue = util.PriorityQueue()
-        for current_state in states:
-            predecessor_temp = []   
-            for state in states:   
-                for action in self.mdp.getPossibleActions(state):
-                    for nextState in self.mdp.getTransitionStatesAndProbs(state, action):
-                        if current_state in nextState:
-                            predecessor_temp.append(state) 
-                            break
-            predecessors.append(predecessor_temp)
-            action = self.getPolicy(current_state)
-            if not action is None:
-                diff = abs(self.values[current_state] - self.getQValue(current_state,action))
-                priorityQueue.push(current_state,-diff)
+        predecessors = {}
+        
+        non_terminal_states=[]
 
-        for i in range(self.iterations):
+        priorityQueue = util.PriorityQueue()
+
+        for current_state in states:
+            if self.mdp.isTerminal(current_state):
+                continue
+            non_terminal_states.append(current_state)
+            for action in self.mdp.getPossibleActions(current_state):
+                for next_state, _ in self.mdp.getTransitionStatesAndProbs(current_state, action):
+                    if next_state in predecessors:
+                        predecessors[next_state].add(current_state)
+                    else:
+                        predecessors[next_state] = {current_state}
+            action = self.getPolicy(current_state)
+            diff = abs(self.values[current_state] - self.getQValue(current_state,action))
+            priorityQueue.update(current_state,-diff)
+
+
+        for _ in range(self.iterations):
             if priorityQueue.isEmpty():
                 return
             state = priorityQueue.pop()
             action = self.getPolicy(state)
             self.values[state] = self.getQValue(state,action)
-            for predecessor_temp in predecessors[states.index(state)]:
-                action = self.getPolicy(predecessor_temp)  
-                diff = abs(self.values[predecessor_temp] - self.getQValue(predecessor_temp,action))
+            for predecessor in predecessors[state]:
+                action = self.getPolicy(predecessor)
+                diff = abs(self.values[predecessor] - self.getQValue(predecessor,action))
                 if diff > self.theta:
-                    priorityQueue.update(predecessor_temp,-diff)
+                    priorityQueue.update(predecessor,-diff)
 
